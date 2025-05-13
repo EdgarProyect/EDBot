@@ -1,0 +1,22 @@
+# .gitignore para bots Python
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+
+# Entornos virtuales
+env/
+venv/
+.venv/
+
+# Archivos sensibles
+*.env
+*.log
+*.sqlite3
+api_keys.json
+config.json
+*.db
+
+# Archivos del sistema
+.DS_Store
+Thumbs.db
