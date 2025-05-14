@@ -1,10 +1,12 @@
 import logging
 import os
 import asyncio
+import nest_asyncio
+nest_asyncio.apply()
 import time
 from collections import defaultdict, Counter
 from telegram import Update, InlineKeyboardButton, InlineKeyboardMarkup, ChatPermissions
-from telegram.ext import Application, CommandHandler, ContextTypes, MessageHandler, filters, CallbackQueryHandler
+from telegram.ext import Application, CommandHandler, ContextTypes, MessageHandler, filters, CallbackQueryHandler, ChatMemberHandler
 from telegram.error import BadRequest
 from dotenv import load_dotenv
 from ads import send_ads
@@ -120,7 +122,6 @@ async def moderate_message(update: Update, context: ContextTypes.DEFAULT_TYPE):
     chat_id = message.chat_id
     text = message.text.lower()
 
-    # Saludos y agradecimientos
     if any(word in text for word in GREETING_WORDS):
         await message.reply_text(f"¡Hola {message.from_user.first_name}! 👋")
         return
@@ -129,7 +130,6 @@ async def moderate_message(update: Update, context: ContextTypes.DEFAULT_TYPE):
         await message.reply_text(f"¡De nada {message.from_user.first_name}! 😊")
         return
 
-    # Palabras prohibidas
     if any(word in text for word in BANNED_WORDS):
         await message.delete()
         warning = f"⚠️ {message.from_user.mention_markdown()}, por favor evita usar lenguaje inapropiado."
@@ -140,7 +140,6 @@ async def moderate_message(update: Update, context: ContextTypes.DEFAULT_TYPE):
         await check_penalties(update, context, user_id)
         return
 
-    # Links sospechosos
     if any(link in text for link in SPAM_LINKS):
         await message.delete()
         warning = f"⚠️ {message.from_user.mention_markdown()}, no se permiten enlaces sospechosos."
@@ -151,7 +150,6 @@ async def moderate_message(update: Update, context: ContextTypes.DEFAULT_TYPE):
         await check_penalties(update, context, user_id)
         return
 
-    # Flood (más de 5 mensajes en 60s)
     now = time.time()
     user_messages[user_id].append(now)
     user_messages[user_id] = [t for t in user_messages[user_id] if now - t < 60]
@@ -166,7 +164,6 @@ async def moderate_message(update: Update, context: ContextTypes.DEFAULT_TYPE):
         await check_penalties(update, context, user_id)
         return
 
-    # Mensajes repetidos
     message_counter[text] += 1
     if message_counter[text] > 3:
         await message.delete()
@@ -198,6 +195,23 @@ async def check_penalties(update: Update, context: ContextTypes.DEFAULT_TYPE, us
         except BadRequest as e:
             logger.error(f"No se pudo silenciar al usuario: {e}")
 
+# Al ser añadido a un grupo
+async def bot_added_to_group(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    result = update.my_chat_member
+    if result.new_chat_member.status in ["member", "administrator"]:
+        chat_title = result.chat.title or "este grupo"
+        try:
+            logo_path = "logo.png"
+            with open(logo_path, "rb") as logo:
+                await context.bot.send_photo(
+                    chat_id=result.chat.id,
+                    photo=logo,
+                    caption=f"🤖 ¡Gracias por añadirme a *{chat_title}*! Estoy listo para moderar, dar la bienvenida y más. Usa /start para configurar.",
+                    parse_mode="Markdown"
+                )
+        except Exception as e:
+            logger.error(f"Error enviando mensaje de bienvenida al grupo: {e}")
+
 # Lanzar bot
 async def main():
     app = Application.builder().token(TOKEN).build()
@@ -206,11 +220,16 @@ async def main():
     app.add_handler(CallbackQueryHandler(button_callback))
     app.add_handler(MessageHandler(filters.StatusUpdate.NEW_CHAT_MEMBERS, new_member))
     app.add_handler(MessageHandler(filters.TEXT & ~filters.COMMAND, moderate_message))
+    app.add_handler(ChatMemberHandler(bot_added_to_group, chat_member_types=ChatMemberHandler.MY_CHAT_MEMBER))
 
     app.job_queue.run_once(schedule_ads, 5)
 
     logger.info("Bot iniciado")
     await app.run_polling()
 
+# Punto de entrada
 if __name__ == "__main__":
-    asyncio.run(main())
+    try:
+        asyncio.run(main())
+    except RuntimeError:
+        pass
