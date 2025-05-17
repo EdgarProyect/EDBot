@@ -59,28 +59,43 @@ async def button_callback(update: Update, context: ContextTypes.DEFAULT_TYPE):
 
 # Anuncios cada 30 min
 async def schedule_ads(context: ContextTypes.DEFAULT_TYPE):
+    # Llamamos a la función que envía los anuncios
     await send_ads(context.bot)
-    context.job_queue.run_once(schedule_ads, 1800)
+    
+    # Programamos la ejecución del anuncio cada 30 minutos
+    context.job_queue.run_repeating(schedule_ads, interval=90, first=0)
 
+
+# Configurar el logging
+logging.basicConfig(level=logging.INFO)
+logger = logging.getLogger(__name__)
 # Comando /start
 async def start(update: Update, context: ContextTypes.DEFAULT_TYPE):
-    logo_path = "logo.png"
-    with open(logo_path, "rb") as logo:
-        await update.message.reply_photo(logo, caption="🌟 ¡Bienvenido a mi bot! 🌟")
+    try:
+        logo_path = "logo.png"
+        with open(logo_path, "rb") as logo:
+            await update.message.reply_photo(logo, caption="🌟 ¡Bienvenido al Grupo, {}! 🌟".format(update.message.from_user.first_name))
 
-    markup = InlineKeyboardMarkup([
-        [
-            InlineKeyboardButton("📘 Facebook", url="https://facebook.com/tu_pagina"),
-            InlineKeyboardButton("🐦 Twitter", url="https://twitter.com/tu_perfil"),
-            InlineKeyboardButton("📸 Instagram", url="https://instagram.com/tu_perfil"),
-            InlineKeyboardButton("🎥 YouTube", url="https://youtube.com/tu_canal")
-        ],
-        [
-            InlineKeyboardButton("🌐 Visita mi web", url="https://edgarglienke.com.ar")
-        ]
-    ])
+        markup = InlineKeyboardMarkup([
+            [
+                InlineKeyboardButton("🌍 Facebook", url="https://facebook.com/tu_pagina"),
+                InlineKeyboardButton("🐦 Twitter", url="https://twitter.com/tu_perfil"),
+                InlineKeyboardButton("📸 Instagram", url="https://instagram.com/tu_perfil"),
+                InlineKeyboardButton("🎥 YouTube", url="https://youtube.com/tu_canal")
+            ],
+            [
+                InlineKeyboardButton("💻 Visita mi Web", url="https://edgarglienke.com.ar"),
+                InlineKeyboardButton("📱 Contacto Directo", url="https://wa.me/5491161051718")
+            ]
+        ])
 
-    await update.message.reply_text("📲 ¡Sígueme en mis redes sociales!", reply_markup=markup)
+        await update.message.reply_text(
+            "📲 ¡Sígueme en mis redes sociales y mantente conectado!",
+            reply_markup=markup
+        )
+    except Exception as e:
+        print(f"Error al procesar /start: {e}")
+        await update.message.reply_text("⚠️ Hubo un error al intentar enviarte la información. Por favor, inténtalo más tarde.")
 
 # Nuevo miembro
 async def new_member(update: Update, context: ContextTypes.DEFAULT_TYPE):
@@ -212,26 +227,65 @@ async def bot_added_to_group(update: Update, context: ContextTypes.DEFAULT_TYPE)
         except Exception as e:
             logger.error(f"Error enviando mensaje de bienvenida al grupo: {e}")
 
-# Lanzar bot
+# ... (el código anterior se mantiene igual hasta la línea que dice "# Función para enviar anuncios al grupo")
+
+# Función para enviar anuncios al grupo
+async def send_ads(bot):
+    try:
+        ad_message = "📢 Anuncio automático: No olvides visitar nuestra web oficial 👉 https://edgarglienke.com.ar y seguirnos en redes sociales."
+        await bot.send_message(chat_id=CHAT_ID, text=ad_message)
+    except Exception as e:
+        logger.error(f"Error al enviar anuncio automático: {e}")
+
+# Función principal
 async def main():
     app = Application.builder().token(TOKEN).build()
 
+    # Handlers de comandos y eventos
     app.add_handler(CommandHandler("start", start))
-    app.add_handler(CallbackQueryHandler(button_callback))
     app.add_handler(MessageHandler(filters.StatusUpdate.NEW_CHAT_MEMBERS, new_member))
     app.add_handler(MessageHandler(filters.TEXT & ~filters.COMMAND, moderate_message))
-    app.add_handler(ChatMemberHandler(bot_added_to_group, chat_member_types=ChatMemberHandler.MY_CHAT_MEMBER))
+    app.add_handler(CallbackQueryHandler(button_callback))
+    app.add_handler(ChatMemberHandler(bot_added_to_group, chat_member_types=["my_chat_member"]))
 
-    app.job_queue.run_once(schedule_ads, 5)
+    # Iniciar anuncios programados
+    app.job_queue.run_repeating(schedule_ads, interval=1800, first=10)  # cada 30 minutos
 
-    logger.info("Bot iniciado")
+    logger.info("🤖 Bot iniciado correctamente.")
     await app.run_polling()
 
-# Punto de entrada
-
-
 if __name__ == "__main__":
+    asyncio.run(main())
+
+
     try:
         asyncio.get_running_loop().create_task(main())
     except RuntimeError:
-        asyncio.run(main())    
+        asyncio.run(main())   
+# ... [todo tu código anterior sin cambios] ...
+
+# ----------- AL FINAL DEL ARCHIVO ----------------
+
+# MAIN
+async def main():
+    application = Application.builder().token(TOKEN).build()
+
+    # Handlers
+    application.add_handler(CommandHandler("start", start))
+    application.add_handler(MessageHandler(filters.StatusUpdate.NEW_CHAT_MEMBERS, new_member))
+    application.add_handler(MessageHandler(filters.TEXT & ~filters.COMMAND, moderate_message))
+    application.add_handler(CallbackQueryHandler(button_callback))
+    application.add_handler(ChatMemberHandler(bot_added_to_group, ChatMemberHandler.MY_CHAT_MEMBER))
+
+    # Tarea programada para anuncios cada 90 segundos
+    application.job_queue.run_repeating(schedule_ads, interval=90, first=5)
+
+    # Iniciar el bot
+    logger.info("🚀 Bot iniciado correctamente")
+    await application.run_polling()
+
+# Ejecutar si es script principal
+if __name__ == "__main__":
+    import asyncio
+    asyncio.run(main())
+ 
