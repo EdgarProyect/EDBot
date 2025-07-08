@@ -1,0 +1,17 @@
+# Handle line endings automatically
+* text=auto
+
+# Declare file types explicitly
+*.py text eol=lf
+*.sh text eol=lf
+*.ps1 text eol=crlf
+*.md text eol=lf
+*.json text eol=lf
+*.env text eol=lf
+
+# Treat bash scripts as executable (si los hay)
+*.sh eol=lf text executable
+
+# Optional: force UTF-8 encoding
+*.py linguist-language=Python charset=utf-8
+*.json linguist-language=JSON charset=utf-8

@@ -1,22 +1,109 @@
-# .gitignore para bots Python
-__pycache__/
-*.pyc
-*.pyo
-*.pyd
+# ⚙️ Entorno
+.env
+.env.*           # Soporte para .env.local, .env.development, etc.
 
-# Entornos virtuales
-env/
-venv/
-.venv/
+# 📦 Dependencias
+node_modules/
 
-# Archivos sensibles
-*.env
+# 🛠️ Builds y temporales
+dist/
+build/
+out/
+tmp/
+temp/
+
+# 🧠 Logs
 *.log
-*.sqlite3
-api_keys.json
-config.json
-*.db
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
 
-# Archivos del sistema
+# 🛡️ Sistemas operativos
 .DS_Store
 Thumbs.db
+
+# 🧠 IDEs y editores
+.vscode/
+.idea/
+*.sublime-workspace
+*.sublime-project
+
+# 📂 Control de versiones de entorno
+*.swp
+*.bak
+*.tmp
+
+# ⚠️ Seguridad
+*.pem
+*.key
+*.crt
+
+# 🚀 Optional: si usás TypeScript
+*.tsbuildinfo
+
+# 🧪 Optional: si usás testing
+coverage/
+
+# Byte-compiled / cache
+__pycache__/
+*.py[cod]
+*$py.class
+
+# Logs
+*.log
+
+# Virtual environments
+venv/
+.venv/
+env/
+ENV/
+
+# VS Code config
+.vscode/
+
+# Environments / Secrets
+.env
+.env.*
+
+# Compiled C files
+*.so
+
+# macOS files
+.DS_Store
+
+# Jupyter/IPython notebooks
+.ipynb_checkpoints
+
+# Python egg
+*.egg
+*.egg-info/
+dist/
+build/
+.eggs/
+
+# Pip
+pip-log.txt
+
+# PyInstaller
+*.spec
+
+# Coverage reports
+.coverage
+htmlcov/
+coverage.xml
+
+# MyPy
+.mypy_cache/
+
+# Pytest
+.cache/
+.pytest_cache/
+
+# Telegram bot logs/data
+*.session
+*.db
+*.json
+
+# Node.js (si lo usás para alguna parte)
+node_modules/
+

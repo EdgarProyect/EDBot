@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Productos - EDBot</title>
+  <link rel="stylesheet" href="estilos.css">
+</head>
+<body>
+  <h1 class="titulo">🛍️ Productos Destacados</h1>
+
+  <div class="carrusel">
+    <!-- Producto 1 -->
+    <div class="producto" onclick="location.href='producto1.html'">
+      <h2>Producto 1</h2>
+      <p>💲10.000</p>
+      <button onclick="compartir(event, 'producto1.html')">🔗 Compartir</button>
+    </div>
+    <!-- Producto 2 -->
+    <div class="producto" onclick="location.href='producto2.html'">
+      <h2>Producto 2</h2>
+      <p>💲15.500</p>
+      <button onclick="compartir(event, 'producto2.html')">🔗 Compartir</button>
+    </div>
+    <!-- Producto 3 -->
+    <div class="producto" onclick="location.href='producto3.html'">
+      <h2>Producto 3</h2>
+      <p>💲8.700</p>
+      <button onclick="compartir(event, 'producto3.html')">🔗 Compartir</button>
+    </div>
+    <!-- Producto 4 -->
+    <div class="producto" onclick="location.href='producto4.html'">
+      <h2>Producto 4</h2>
+      <p>💲22.000</p>
+      <button onclick="compartir(event, 'producto4.html')">🔗 Compartir</button>
+    </div>
+    <!-- Producto 5 -->
+    <div class="producto" onclick="location.href='producto5.html'">
+      <h2>Producto 5</h2>
+      <p>💲12.300</p>
+      <button onclick="compartir(event, 'producto5.html')">🔗 Compartir</button>
+    </div>
+  </div>
+
+  <script>
+    function compartir(event, url) {
+      event.stopPropagation(); // Evita que se dispare el click del div
+      const enlace = location.origin + '/' + url;
+      navigator.clipboard.writeText(enlace);
+      alert("🔗 Enlace copiado: " + enlace);
+    }
+  </script>
+</body>
+</html>

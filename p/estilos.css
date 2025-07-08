@@ -1,0 +1,48 @@
+body {
+  font-family: Arial, sans-serif;
+  margin: 0;
+  padding: 1rem;
+  background-color: #f4f4f4;
+  color: #333;
+}
+
+.titulo {
+  text-align: center;
+  margin-bottom: 2rem;
+}
+
+.carrusel {
+  display: flex;
+  overflow-x: auto;
+  gap: 1rem;
+  padding: 1rem;
+}
+
+.producto {
+  min-width: 220px;
+  background-color: white;
+  border-radius: 12px;
+  padding: 1rem;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+  cursor: pointer;
+  flex-shrink: 0;
+  transition: transform 0.2s;
+}
+
+.producto:hover {
+  transform: scale(1.05);
+}
+
+.producto button {
+  margin-top: 0.5rem;
+  padding: 0.5rem;
+  background-color: #007BFF;
+  color: white;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+}
+
+.producto button:hover {
+  background-color: #0056b3;
+}
